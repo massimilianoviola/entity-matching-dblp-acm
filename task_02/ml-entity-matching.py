@@ -168,7 +168,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--model", default="NN", choices=["NN", "RF", "SVM"],
                         help="Model to predict test set: neural network (NN), random forest (RF), support vector machine (SVM).")
     parser.add_argument("-p", "--hyper_parameters", default="1", choices=["1", "2", "3"],
-                        help="Hyper parameters of the chosen model.")
+                        help="Hyper parameters of the chosen model: 1st set of parameters (1), 2nd set of parameters (2), 3rd set of parameters (3).")
     parser.add_argument("-c", "--cross_validation", action="store_true",
                         help="Run cross-validation on the training dataframes.")
     parser.add_argument("-v", "--verbose", action="store_true",

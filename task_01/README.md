@@ -19,19 +19,19 @@ To evaluate, if two records match, we used only the columns `title` and `authors
 We evaluated the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**, which nicely summerize the accuray of the pipeline.
 
 ### Title matching using levenshtein ratio
-TODO
+The levenshtein ratio title matching has the overall best accuracy. It yields the best compromise between precision and recall.
 * precision: **97.23 %**
 * recall:    **97.71 %**
 * f1 score:  **97.47 %**
 
 ### Title matching using our title match accuracy
-TODO
+Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy.
 * precision: **94.21 %**
 * recall:    **98.79 %**
 * f1 score:  **96.44 %**
 
 ### Title matching using exact title match
-TODO
+Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy.
 * precision: **97.97 %**
 * recall:    **91.05 %**
 * f1 score:  **94.38 %**

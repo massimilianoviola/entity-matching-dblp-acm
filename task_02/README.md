@@ -11,20 +11,7 @@ TODO
 ## Results
 We evaluated the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**, which nicely summerize the accuray of the pipeline.
 
-### Matching using a neural network
-The levenshtein ratio title matching has the overall best accuracy. It yields the best compromise between precision and recall.
-* precision: **98.00 %**
-* recall:    **98.66 %**
-* f1 score:  **98.33 %**
-
-### Matching using a random forest
-Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy.
-* precision: **98.66 %**
-* recall:    **98.66 %**
-* f1 score:  **98.66 %**
-
-### Matching using a support vector machine
-The exact title match matching has the worst overall accuracy of our approaches, but the accuracy is still very good, considering it is the simples possible matching scheme, which does not even consider the `authors` column. It favors accuracy over recall.
+### Best performing ML model based on the validation set results
 * precision: **98.66 %**
 * recall:    **98.66 %**
 * f1 score:  **98.66 %**
