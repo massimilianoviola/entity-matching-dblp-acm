@@ -11,7 +11,12 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
+import numpy as np
 
+# ensure result reproduceability
+RANDOM_SEED = 0
+np.random.seed(RANDOM_SEED)
+CUDA_VISIBLE_DEVICES="" # forces running trainig on CPU for result reproduceability
 
 def preprocess_titles(df):
     """Normalize titles by converting to lowercase,
@@ -66,7 +71,7 @@ def title_match_accuracy(title_A, title_B):
     return intersection / normalization_factor
 
 
-def create_X_and_y(A, B, verbose=False):
+def create_X_and_y(A, B, df_true, verbose=False):
     """Given two input dataframes A and B, generate the feature matrix and corresponding labels
     for the training phase by:
     - applying a year blocking scheme,
@@ -159,37 +164,36 @@ def create_X_and_ids(A, B, verbose=False):
 
 
 if __name__ == "__main__":
-    
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="NN", choices=["NN", "RF", "SVM"],
-                        help="Model to predict test set: neural network (NN), random forest (RF), support vector machine (SVM)")
-    parser.add_argument("--cross_validation", action="store_true",
-                        help="Run cross-validation on the training dataframes")
+                        help="Model to predict test set: neural network (NN), random forest (RF), support vector machine (SVM).")
+    parser.add_argument("-p", "--hyper_parameters", default="1", choices=["1", "2", "3"],
+                        help="Hyper parameters of the chosen model.")
+    parser.add_argument("-c", "--cross_validation", action="store_true",
+                        help="Run cross-validation on the training dataframes.")
     parser.add_argument("-v", "--verbose", action="store_true",
-                        help="Increase output verbosity, display progress bars and results")
-    parser.add_argument("--save_plot", action="store_true",
-                        help="Save the plot of the decision boundary of the trained model predicting the test set")
+                        help="Increase output verbosity, display progress bars and results.")
+    parser.add_argument("-s", "--save_plot", action="store_true",
+                        help="Save the plot of the decision boundary of the trained model predicting the test set.")
     args = parser.parse_args()
-    
 
     dfa, dfb, df_true = load_and_preprocess_data()
 
     # leave a 25% test split out in both dataframes as test
-    dfa_train, dfa_test = train_test_split(dfa, test_size=0.25, random_state=0)
-    dfb_train, dfb_test = train_test_split(dfb, test_size=0.25, random_state=0)
+    dfa_train, dfa_test = train_test_split(dfa, test_size=0.25, random_state=RANDOM_SEED)
+    dfb_train, dfb_test = train_test_split(dfb, test_size=0.25, random_state=RANDOM_SEED)
     dfa_train = dfa_train.reset_index(drop=True)
     dfb_train = dfb_train.reset_index(drop=True)
 
     # load language model to be used as feature extractor
     model = SentenceTransformer("all-MiniLM-L12-v2")
 
-
     if args.cross_validation:
         if args.verbose:
-            print("Running cross-validation...")
+            print("### Running cross-validation...")
         
         # run 3-fold cross-validation on the train dataframes
-        kf = KFold(n_splits=3, shuffle=True, random_state=0)
+        kf = KFold(n_splits=3, shuffle=True, random_state=RANDOM_SEED)
 
         for fold, ((train_idxa, valid_idxa), (train_idxb, valid_idxb)) in \
             enumerate(zip(kf.split(dfa_train), kf.split(dfb_train))):
@@ -205,17 +209,17 @@ if __name__ == "__main__":
             vb = dfb_train.loc[valid_idxb]
             
             # create train feature matrix and target
-            X_train, y_train = create_X_and_y(ta, tb, verbose=args.verbose)
+            X_train, y_train = create_X_and_y(ta, tb, df_true, verbose=args.verbose)
             
             # create valid feature matrix and ids
             X_valid, df_pred = create_X_and_ids(va, vb, verbose=args.verbose)
             
             if args.model == "RF":
-                clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=0)
+                clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=RANDOM_SEED)
             elif args.model == "SVM":
                 clf = SVC(kernel="rbf")
             else:
-                clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=0)
+                clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=RANDOM_SEED)
 
             clf.fit(X_train, y_train)
 
@@ -231,29 +235,47 @@ if __name__ == "__main__":
             if args.verbose:
                 print(f"### Matches in train: {len(df_true.loc[(df_true.idACM.isin(ta.id)) & (df_true.idDBLP.isin(tb.id))])}")
                 print(f"### Matches in valid: {len(true_matches)}")
-                print(f"### --Valid metrics-- precision: {precision:.3f}, recall: {recall:.3f}, f1_score: {f1:.3f}")
+            print(f"Validation accuracy metrics for fold {fold + 1}:", f"precision: {precision:.4f}", 
+                  f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep='\n')
         
         if args.verbose:
             print("#"*25)
-    
-    
+      
     if args.verbose:
         print("Training on the whole training set...")
     
     # train model with the whole training set
-    X, y = create_X_and_y(dfa_train, dfb_train, verbose=args.verbose)
+    X, y = create_X_and_y(dfa_train, dfb_train, df_true, verbose=args.verbose)
 
     if args.model == "RF":
-        clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=0)
+        name = "Random forest"
+        if args.hyper_parameters == "1":
+            clf = RandomForestClassifier(n_estimators=100, max_depth=3, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "2":
+            clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "3":
+            clf = RandomForestClassifier(n_estimators=300, max_depth=1, random_state=RANDOM_SEED)
     elif args.model == "SVM":
-        clf = SVC(kernel="rbf")
+        name = "Support vector machine"
+        if args.hyper_parameters == "1":
+            clf = SVC(kernel="rbf")
+        elif args.hyper_parameters == "2":
+            clf = SVC(kernel="linear")
+        elif args.hyper_parameters == "3":
+            clf = SVC(kernel="poly")
     else:
-        clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=0)
+        name = "Neural network" 
+        if args.hyper_parameters == "1":
+            clf = MLPClassifier(hidden_layer_sizes=(4,), max_iter=400, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "2":
+            clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "3":
+            clf = MLPClassifier(hidden_layer_sizes=(12,), max_iter=400, random_state=RANDOM_SEED)
 
     clf.fit(X, y)
     
     if args.verbose:
-        print("Predicting test set...")
+        print("### Predicting test set...")
     
     # predict test
     X_test, df_pred = create_X_and_ids(dfa_test, dfb_test, verbose=args.verbose)
@@ -267,11 +289,14 @@ if __name__ == "__main__":
     
     if args.verbose:
         print(f"### Matches in test to predict: {len(true_matches)}")
-        print(f"### --Test metrics-- precision: {precision:.3f}, recall: {recall:.3f}, f1_score: {f1:.3f}")
-        
+    
+    print(f"Test accuracy metrics for {name} {args.hyper_parameters}:", f"precision: {precision:.4f}", f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep='\n')
     
     if args.save_plot:
         # plot decision boundary of the classifier and train/test points
+        if args.verbose:
+            print("### Plotting the decision boundry...")
+
         disp = DecisionBoundaryDisplay.from_estimator(
             clf, X, response_method="predict",
             xlabel="Title cosine similarity", ylabel="Authors cosine similarity",
@@ -283,13 +308,7 @@ if __name__ == "__main__":
                          c="g", edgecolor="k", label="Train match")
         disp.ax_.scatter(X_test.loc[:, "title_sim"], X_test.loc[:, "authors_sim"],
                          c="orange", marker="x", label="Test")
-
-        if args.model == "RF":
-            name = "Random forest"
-        elif args.model == "SVM":
-            name = "SVM"
-        else:
-            name = "Neural network"        
+       
         plt.title(f"{name} decision boundary")
         plt.xlim(-0.15, 1.05)
         plt.ylim(-0.15, 1.05)
@@ -297,4 +316,4 @@ if __name__ == "__main__":
         
         if not os.path.exists("plots"):
             os.mkdir("plots")
-        plt.savefig(f"plots/{'_'.join(name.split())}_decision_boundary.png", dpi=200)
+        plt.savefig(f"plots/{args.model}_{args.hyper_parameters}_decision_boundary.png", dpi=200)
