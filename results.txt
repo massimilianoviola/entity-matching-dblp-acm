@@ -10,27 +10,3 @@ Test accuracy metrics for Neural network 3:
 precision: 0.9800
 recall:    0.9866
 f1 score:  0.9833
-Test accuracy metrics for Random forest 1:
-precision: 0.9799
-recall:    0.9799
-f1 score:  0.9799
-Test accuracy metrics for Random forest 2:
-precision: 0.9866
-recall:    0.9866
-f1 score:  0.9866
-Test accuracy metrics for Random forest 3:
-precision: 0.9867
-recall:    0.9933
-f1 score:  0.9900
-Test accuracy metrics for Support vector machine 1:
-precision: 0.9866
-recall:    0.9866
-f1 score:  0.9866
-Test accuracy metrics for Support vector machine 2:
-precision: 0.9800
-recall:    0.9866
-f1 score:  0.9833
-Test accuracy metrics for Support vector machine 3:
-precision: 0.9796
-recall:    0.9664
-f1 score:  0.9730

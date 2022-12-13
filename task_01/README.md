@@ -16,30 +16,38 @@ To evaluate, if two records match, we used only the columns `title` and `authors
 * **Levenshtein ration**: This technique is based on the levenshtein distance. It is calculated as a fraction of the difference between the lenght of the longer string and the levenshtein distance between the two input strings and the lenght of the longer string, or simplyfied as $1 - levenshtein\_distance / longer\_string\_length$.
 
 ## Results
-We evaluated the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**, which nicely summerize the accuray of the pipeline.
+We evaluated the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**.
 
 ### Title matching using levenshtein ratio
-The levenshtein ratio title matching has the overall best accuracy. It yields the best compromise between precision and recall.
+The levenshtein ratio title matching has the overall best accuracy. It yields the best compromise between precision and recall. The results are:
 * precision: **97.23 %**
 * recall:    **97.71 %**
 * f1 score:  **97.47 %**
 
+#### Matches and non-matches scattered on the plot of the decision boundary
+![levenshtein](../plots/levenshtein_decision_boundary.png)
+
 ### Title matching using our title match accuracy
-Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy.
+Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy. The results are:
 * precision: **94.21 %**
 * recall:    **98.79 %**
 * f1 score:  **96.44 %**
 
+#### Matches and non-matches scattered on the plot of the decision boundary
+![accuracy](../plots/accuracy_decision_boundary.png)
+
 ### Title matching using exact title match
-Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy.
+Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy. The results are:
 * precision: **97.97 %**
 * recall:    **91.05 %**
 * f1 score:  **94.38 %**
 
-## Result reproduction
-Install the required libraries with `pip install -r ./task_01/requirements.txt`. Run the script from the root directory of the project after downloading and extracting the data as described in the main README file.
+#### Matches and non-matches scattered on the plot of the decision boundary
+![exact](../plots/exact_decision_boundary.png)
 
-The commands to run the script and reproduce the results listed above are:
-* `python ./task_01/entity-matching.py -st levenshtein`  - for the title matching using levenshtein ratio 
-* `python ./task_01/entity-matching.py -st accuracy`     - for the title matching using our title match accuracy
-* `python ./task_01/entity-matching.py -st exact`        - for the title matching using exact title match
+
+## Result reproduction
+Run the script from the root directory of the project after installing the requirements, downloading and extracting the data as described in the main README file. Use the commands listed below to reproduce the results:
+* `python ./task_01/entity-matching.py -t levenshtein `  - for the title matching using levenshtein ratio 
+* `python ./task_01/entity-matching.py -t accuracy    `  - for the title matching using our title match accuracy
+* `python ./task_01/entity-matching.py -t exact       `  - for the title matching using exact title match

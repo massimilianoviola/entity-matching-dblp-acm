@@ -8,6 +8,36 @@ Massimiliano Viola, massimiliano.viola@student.tugraz.at, 12213195
 ## Used data for entity matching
 The used data can be downloaded using this link https://dbs.uni-leipzig.de/file/DBLP-ACM.zip. After downloading it, extract the content to the root directory of the project.
 
+## Required libraries
+Install the required libraries with `pip install -r ./requirements.txt` for both scripts.
+
+## Scripts
+We separated the *Task 01* and *Task 02* of the excercise into two scripts. The usage of the respective scripts is the following:
+```
+python ./task_01/entity-matching.py [-h] [-t {levenshtein,accuracy,exact}] [-s]
+
+options:
+  -h, --help            show this help message and exit
+  -t {levenshtein,accuracy,exact}, --technique {levenshtein,accuracy,exact}
+                        Title matching techniques: Levenshtein ration (levenshtein), Our accuracy measure (accuracy), Exact match (exact).
+  -s, --save_plot       Save the plot of the decision boundary with scattered matches and non-macthes.
+
+```
+```
+python ./task_02/ml-entity-matching.py [-h] [-m {NN,RF,SVM}] [-p {1,2,3}] [-c] [-v] [-s]
+
+options:
+  -h, --help            show this help message and exit
+  -m {NN,RF,SVM}, --model {NN,RF,SVM}
+                        Model to predict test set: neural network (NN), random forest (RF), support vector machine (SVM).
+  -p {1,2,3}, --hyper_parameters {1,2,3}
+                        Hyper parameters of the chosen model: 1st set of parameters (1), 2nd set of parameters (2), 3rd set of parameters (3).
+  -c, --cross_validation
+                        Run cross-validation on the training dataframes.
+  -v, --verbose         Increase output verbosity, display progress bars and results.
+  -s, --save_plot       Save the plot of the decision boundary of the trained model predicting the test set.
+```
+
 ## Implementation details shared between non ML and ML approaches
 In this section we describe, how we cleaned, pre-processed and blocked the records. For specific implementation details for each approach see the README files in directories `task_01/` and `task_02/` respectively.
 

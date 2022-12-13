@@ -106,9 +106,9 @@ class Classifier():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--technique", default="levenshtein", choices=["levenshtein", "accuracy", "exact"],
-                        help="Title matching techniques: Levenshtein ration (levenshtein), Our accuracy measure (accuracy), Exact match (exact)")
+                        help="Title matching techniques: Levenshtein ration (levenshtein), Our accuracy measure (accuracy), Exact match (exact).")
     parser.add_argument("-s", "--save_plot", action="store_true",
-                        help="Save the plot of the decision boundary based on chosen technique")
+                        help="Save the plot of the decision boundary with scattered matches and non-macthes.")
     args = parser.parse_args()
 
     name = "Levenshtein ration"

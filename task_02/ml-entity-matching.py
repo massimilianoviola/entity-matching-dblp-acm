@@ -163,6 +163,34 @@ def create_X_and_ids(A, B, verbose=False):
     return candidates.loc[:, ["title_sim", "authors_sim"]], candidates.loc[:, ["idDBLP", "idACM"]]
 
 
+def select_model(args):
+    if args.model == "RF":
+        name = "Random forest"
+        if args.hyper_parameters == "1":
+            clf = RandomForestClassifier(n_estimators=100, max_depth=3, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "2":
+            clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "3":
+            clf = RandomForestClassifier(n_estimators=300, max_depth=1, random_state=RANDOM_SEED)
+    elif args.model == "SVM":
+        name = "Support vector machine"
+        if args.hyper_parameters == "1":
+            clf = SVC(kernel="rbf", random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "2":
+            clf = SVC(kernel="linear", random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "3":
+            clf = SVC(kernel="poly", random_state=RANDOM_SEED)
+    else:
+        name = "Neural network" 
+        if args.hyper_parameters == "1":
+            clf = MLPClassifier(hidden_layer_sizes=(4,), max_iter=400, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "2":
+            clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=RANDOM_SEED)
+        elif args.hyper_parameters == "3":
+            clf = MLPClassifier(hidden_layer_sizes=(12,), max_iter=400, random_state=RANDOM_SEED)
+
+    return name, clf
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", default="NN", choices=["NN", "RF", "SVM"],
@@ -213,14 +241,8 @@ if __name__ == "__main__":
             
             # create valid feature matrix and ids
             X_valid, df_pred = create_X_and_ids(va, vb, verbose=args.verbose)
-            
-            if args.model == "RF":
-                clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=RANDOM_SEED)
-            elif args.model == "SVM":
-                clf = SVC(kernel="rbf")
-            else:
-                clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=RANDOM_SEED)
 
+            name, clf = select_model(args)
             clf.fit(X_train, y_train)
 
             pred = clf.predict(X_valid)
@@ -235,7 +257,7 @@ if __name__ == "__main__":
             if args.verbose:
                 print(f"### Matches in train: {len(df_true.loc[(df_true.idACM.isin(ta.id)) & (df_true.idDBLP.isin(tb.id))])}")
                 print(f"### Matches in valid: {len(true_matches)}")
-            print(f"Validation accuracy metrics for fold {fold + 1}:", f"precision: {precision:.4f}", 
+            print(f"Validation accuracy metrics for {name} {args.hyper_parameters} for fold {fold + 1}:", f"precision: {precision:.4f}", 
                   f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep='\n')
         
         if args.verbose:
@@ -247,31 +269,7 @@ if __name__ == "__main__":
     # train model with the whole training set
     X, y = create_X_and_y(dfa_train, dfb_train, df_true, verbose=args.verbose)
 
-    if args.model == "RF":
-        name = "Random forest"
-        if args.hyper_parameters == "1":
-            clf = RandomForestClassifier(n_estimators=100, max_depth=3, random_state=RANDOM_SEED)
-        elif args.hyper_parameters == "2":
-            clf = RandomForestClassifier(n_estimators=200, max_depth=2, random_state=RANDOM_SEED)
-        elif args.hyper_parameters == "3":
-            clf = RandomForestClassifier(n_estimators=300, max_depth=1, random_state=RANDOM_SEED)
-    elif args.model == "SVM":
-        name = "Support vector machine"
-        if args.hyper_parameters == "1":
-            clf = SVC(kernel="rbf")
-        elif args.hyper_parameters == "2":
-            clf = SVC(kernel="linear")
-        elif args.hyper_parameters == "3":
-            clf = SVC(kernel="poly")
-    else:
-        name = "Neural network" 
-        if args.hyper_parameters == "1":
-            clf = MLPClassifier(hidden_layer_sizes=(4,), max_iter=400, random_state=RANDOM_SEED)
-        elif args.hyper_parameters == "2":
-            clf = MLPClassifier(hidden_layer_sizes=(8,), max_iter=400, random_state=RANDOM_SEED)
-        elif args.hyper_parameters == "3":
-            clf = MLPClassifier(hidden_layer_sizes=(12,), max_iter=400, random_state=RANDOM_SEED)
-
+    name, clf = select_model(args)
     clf.fit(X, y)
     
     if args.verbose:
