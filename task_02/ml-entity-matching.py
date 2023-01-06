@@ -1,6 +1,7 @@
 import argparse
 import html
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 import pandas as pd
 import string
@@ -11,12 +12,13 @@ from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
-import numpy as np
 
-# ensure result reproduceability
+
+# ensure result reproducibility
 RANDOM_SEED = 0
 np.random.seed(RANDOM_SEED)
-CUDA_VISIBLE_DEVICES="" # forces running trainig on CPU for result reproduceability
+CUDA_VISIBLE_DEVICES="" # forces running training on CPU for result reproducibility
+
 
 def preprocess_titles(df):
     """Normalize titles by converting to lowercase,
@@ -191,12 +193,13 @@ def select_model(args):
 
     return name, clf
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--model", default="NN", choices=["NN", "RF", "SVM"],
+    parser.add_argument("-m", "--model", default="SVM", choices=["NN", "RF", "SVM"],
                         help="Model to predict test set: neural network (NN), random forest (RF), support vector machine (SVM).")
     parser.add_argument("-p", "--hyper_parameters", default="1", choices=["1", "2", "3"],
-                        help="Hyper parameters of the chosen model: 1st set of parameters (1), 2nd set of parameters (2), 3rd set of parameters (3).")
+                        help="Hyper-parameters of the chosen model: 1st set of parameters (1), 2nd set of parameters (2), 3rd set of parameters (3).")
     parser.add_argument("-c", "--cross_validation", action="store_true",
                         help="Run cross-validation on the training dataframes.")
     parser.add_argument("-v", "--verbose", action="store_true",
@@ -258,7 +261,7 @@ if __name__ == "__main__":
                 print(f"### Matches in train: {len(df_true.loc[(df_true.idACM.isin(ta.id)) & (df_true.idDBLP.isin(tb.id))])}")
                 print(f"### Matches in valid: {len(true_matches)}")
             print(f"Validation accuracy metrics for {name} {args.hyper_parameters} for fold {fold + 1}:", f"precision: {precision:.4f}", 
-                  f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep='\n')
+                  f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep="\n")
         
         if args.verbose:
             print("#"*25)
@@ -288,7 +291,7 @@ if __name__ == "__main__":
     if args.verbose:
         print(f"### Matches in test to predict: {len(true_matches)}")
     
-    print(f"Test accuracy metrics for {name} {args.hyper_parameters}:", f"precision: {precision:.4f}", f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep='\n')
+    print(f"Test accuracy metrics for {name} {args.hyper_parameters}:", f"precision: {precision:.4f}", f"recall:    {recall:.4f}", f"f1 score:  {f1:.4f}", sep="\n")
     
     if args.save_plot:
         # plot decision boundary of the classifier and train/test points

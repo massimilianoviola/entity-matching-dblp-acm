@@ -1,53 +1,58 @@
 # Task 01: Entity Matching Pipeline
-This file is a README for the python script `entity-matching.py`, where we implement non machine learning approach to the entity matching of records from two databases.
+This file is a README for the python script `entity-matching.py`, where we implement a non-machine learning approach to the entity matching of records from two databases.
 
 ## Implementation details
-In this section we describe, how we matched the records.
+In this section, we describe how we match the records and explain our decision rules.
 
 ### Records matching
-To evaluate, if two records match, we used only the columns `title` and `authors`, as adding the `venue` column to our matching pipeline decreased its accuracy. Our approach to the matching of records is the following:
-1. We calculated how well the titles of two records match, for which we used one of the three different techniquest described below.
-2. Based on the title match accuracy, we either declare these records as matching, if the accuracy is higher or equal than 95 %, or as a not matching, if the accuracy is lower then 75 %.
-3. When the title match accuracy is between 75 and 95 %, we additionaly use the authors match accuracy, see *Our accuracy* is section *Title matching techniques*, to determine, if the records are matching or not matching. When the title match accuracy is between 85 and 95 %, we required at least 50% match of the authors and for 75 and 85 % title match accuracy, we required a perfect match with regards to the authors.
+To assess whether two records are the same, we use only the `title` and `authors` columns, as adding the `venue` column to our matching pipeline decreased its accuracy. Our approach to the matching of records is the following:
+1. First, we calculate how well the titles of two records match, using one of the three different techniques described below.
+2. Then, based on the title match measure, we either declare these records as matching if the similarity is greater or equal to 95 %, or as not matching if the accuracy is lower than 75 %.
+3. When the title match measure is between 75 and 95 %, we additionally use the authors match accuracy (see *Our accuracy* in section *Title matching techniques*) to help make an uncertain decision. When the title match accuracy is between 85 and 95 %, we require at least a 50% match of the authors to declare the match of two records and if the title match accuracy is between 75 and 85 %, we require a stronger, perfect match of the authors. If these author requirements are not met, the prediction for the pair will be negative.
 
-#### Title matching techniques
-* **Exact match**: This technique gives 100% accuracy, if the two input strings are equal, otherwise it gives 0% accuracy.
-* **Our accuracy measure**: Our technique is inspired by intersection over union. We split the two input strings into words and make sets out of the words. The accuracy is then calculated as a fraction of the magnitude of the intersection of the two sets and the magnitude of the smaller set.
-* **Levenshtein ration**: This technique is based on the levenshtein distance. It is calculated as a fraction of the difference between the lenght of the longer string and the levenshtein distance between the two input strings and the lenght of the longer string, or simplyfied as $1 - levenshtein\_distance / longer\_string\_length$.
+### Title matching techniques
+We designed three different similarity measures for strings, especially used for the `title` column.
+* **Exact match**: this technique is an equal operator and it gives 100% accuracy if the two input strings are equal, otherwise it gives 0% accuracy.
+* **Our accuracy measure**: our technique is inspired by intersection over union. We split the two input strings into words and make sets out of them. The accuracy is then calculated as the cardinality of the intersection of the two sets divided by the cardinality of the smaller set, or $|A \cap B| / \min(|A|, |B|)$.
+* **Levenshtein ratio**: this technique is based on the (normalized) Levenshtein distance. It is calculated as a fraction of the difference between the length of the longer string and the Levenshtein distance between the two input strings and the length of the longer string, $1 - \text{levenshtein\_distance} / \text{longer\_string\_length}$.
 
 ## Results
-We evaluated the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**.
+We evaluate the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**.
 
-### Title matching using levenshtein ratio
-The levenshtein ratio title matching has the overall best accuracy. It yields the best compromise between precision and recall. The results are:
+### Title matching using Levenshtein ratio
+The Levenshtein ratio as the title matching measure has the overall best accuracy. It yields the best compromise between precision and recall. The results are:
 * precision: **97.23 %**
 * recall:    **97.71 %**
 * f1 score:  **97.47 %**
 
-#### Matches and non-matches scattered on the plot of the decision boundary
-![levenshtein](../plots/levenshtein_decision_boundary.png)
+In the following plot, points marked as true matches and non-matches are scattered on top of the decision boundary.
+
+<img src="../plots/levenshtein_decision_boundary.png" alt="levenshtein" width="480"/>
 
 ### Title matching using our title match accuracy
-Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy. The results are:
+Our title match accuracy measure has still a very good overall accuracy. It slightly favours recall over precision. The results are:
 * precision: **94.21 %**
 * recall:    **98.79 %**
 * f1 score:  **96.44 %**
 
-#### Matches and non-matches scattered on the plot of the decision boundary
-![accuracy](../plots/accuracy_decision_boundary.png)
+Ground truth matches and non-matches can again be seen on the plot of the decision boundary.
+
+<img src="../plots/accuracy_decision_boundary.png" alt="accuracy" width="480"/>
 
 ### Title matching using exact title match
-Our title match accuracy measure matching has still very good overall accuracy. It slightly favors recall over accuracy. The results are:
+The exact title match is still a valid option but shows its limitations on the recall side. Precision is very high as expected since predicted matches are always very strong candidates.
+
+The results are:
 * precision: **97.97 %**
 * recall:    **91.05 %**
 * f1 score:  **94.38 %**
 
-#### Matches and non-matches scattered on the plot of the decision boundary
-![exact](../plots/exact_decision_boundary.png)
+Using exact matching is implicitly taking the decision based on one feature only, the title.
 
+<img src="../plots/exact_decision_boundary.png" alt="exact" width="480"/>
 
 ## Result reproduction
-Run the script from the root directory of the project after installing the requirements, downloading and extracting the data as described in the main README file. Use the commands listed below to reproduce the results:
-* `python ./task_01/entity-matching.py -t levenshtein `  - for the title matching using levenshtein ratio 
-* `python ./task_01/entity-matching.py -t accuracy    `  - for the title matching using our title match accuracy
-* `python ./task_01/entity-matching.py -t exact       `  - for the title matching using exact title match
+After installing the requirements for the project, download and extract the data as described in the main README file. Then run the `entity-matching.py` script from the root directory using the commands listed below to reproduce the results:
+* `python ./task_01/entity-matching.py -t levenshtein` - for the title matching using the Levenshtein ratio.
+* `python ./task_01/entity-matching.py -t accuracy   ` - for the title matching using our title match accuracy.
+* `python ./task_01/entity-matching.py -t exact      ` - for the title matching using exact title match.
