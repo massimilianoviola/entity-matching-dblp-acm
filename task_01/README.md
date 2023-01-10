@@ -13,8 +13,8 @@ To assess whether two records are the same, we use only the `title` and `authors
 ### Title matching techniques
 We designed three different similarity measures for strings, especially used for the `title` column.
 * **Exact match**: this technique is an equal operator and it gives 100% accuracy if the two input strings are equal, otherwise it gives 0% accuracy.
-* **Our accuracy measure**: our technique is inspired by intersection over union. We split the two input strings into words and make sets out of them. The accuracy is then calculated as the cardinality of the intersection of the two sets divided by the cardinality of the smaller set, or $|A \cap B| / \min(|A|, |B|)$.
-* **Levenshtein ratio**: this technique is based on the (normalized) Levenshtein distance. It is calculated as a fraction of the difference between the length of the longer string and the Levenshtein distance between the two input strings and the length of the longer string, $1 - \text{levenshtein\_distance} / \text{longer\_string\_length}$.
+* **Our accuracy measure**: our technique is inspired by intersection over union. We split the two input strings into words and make sets out of them. The accuracy is then calculated as the cardinality of the intersection of the two sets divided by the cardinality of the smaller set, or $\dfrac{|A \cap B|}{\min(|A|, |B|)}$.
+* **Levenshtein ratio**: this technique is based on the (normalized) Levenshtein distance. It is calculated as a fraction of the difference between the length of the longer string and the Levenshtein distance between the two input strings and the length of the longer string, or $1 - \dfrac{\text{levenshtein distance}}{\text{longer string length}}$.
 
 ## Results
 We evaluate the results of our pipeline with three common accuracy metrics in information retrieval, i.e. **precision**, **recall** and **f1 score**.
